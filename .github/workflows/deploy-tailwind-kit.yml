@@ -49,8 +49,33 @@ jobs:
       - name: Build tokens package
         run: cd ../../packages/tokens && pnpm build
 
+      - name: Install postcss-cli
+        run: pnpm add -D postcss-cli
+
+      - name: Check directory structure
+        run: |
+          ls -la
+          ls -la src || echo "src directory does not exist"
+          cat postcss.config.js || echo "postcss.config.js does not exist"
+
+      - name: Create PostCSS config if missing
+        run: |
+          if [ ! -f postcss.config.js ]; then
+            echo "module.exports = { plugins: { 'tailwindcss': {}, 'autoprefixer': {} } };" > postcss.config.js
+          fi
+
+      - name: Create styles.css if missing
+        run: |
+          mkdir -p src
+          if [ ! -f src/styles.css ]; then
+            echo "@tailwind base; @tailwind components; @tailwind utilities;" > src/styles.css
+          fi
+
+      - name: Create dist directory
+        run: mkdir -p dist
+
       - name: Build Tailwind Kit
-        run: pnpm build
+        run: npx postcss ./src/styles.css -o ./dist/styles.css --env production
 
       - name: Install Storybook CLI globally
         run: pnpm install -g storybook
