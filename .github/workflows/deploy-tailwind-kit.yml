@@ -51,27 +51,17 @@ jobs:
         working-directory: ${{ github.workspace }}/packages/tokens
         run: pnpm build
 
-      # Создаем файл build.js для генерации CSS на чистом Node.js
-      - name: Create simple build script
+      # Создаем директории для выходных файлов
+      - name: Create directories
         run: |
-          cat > build.js << 'EOF'
-          const fs = require('fs');
-          const path = require('path');
+          mkdir -p src
+          mkdir -p dist
+          mkdir -p storybook-static
 
-          // Создаем директории
-          const srcDir = path.join(process.cwd(), 'src');
-          const distDir = path.join(process.cwd(), 'dist');
-
-          if (!fs.existsSync(srcDir)) {
-            fs.mkdirSync(srcDir, { recursive: true });
-          }
-
-          if (!fs.existsSync(distDir)) {
-            fs.mkdirSync(distDir, { recursive: true });
-          }
-
-          // Базовый CSS с несколькими полезными утилитами
-          const cssContent = `
+      # Создаём простой CSS файл напрямую
+      - name: Create CSS file
+        run: |
+          cat > dist/styles.css << 'EOFCSS'
           /* Базовые стили */
           :root {
             --color-primary: oklch(65% 0.25 30deg);
@@ -95,118 +85,44 @@ jobs:
             background-color: var(--color-secondary);
             color: white;
           }
-          `;
+          EOFCSS
 
-          // Записываем стили
-          fs.writeFileSync(path.join(srcDir, 'styles.css'), cssContent);
-          fs.copyFileSync(path.join(srcDir, 'styles.css'), path.join(distDir, 'styles.css'));
+          # Копируем CSS в директорию storybook
+          cp dist/styles.css storybook-static/
 
-          console.log('CSS files created successfully.');
-          EOF
-
-          node build.js
-
-      # Создаем пример компонента кнопки
-      - name: Create example button component
+      # Создаем простую демо-страницу
+      - name: Create demo page
         run: |
-          mkdir -p src/components
-          cat > src/components/button.html << 'EOF'
-          <button class="button button-primary">
-            Primary Button
-          </button>
-
-          <button class="button button-secondary">
-            Secondary Button
-          </button>
-          EOF
-
-      # Подготавливаем Storybook
-      - name: Prepare Storybook files
-        run: |
-          # Создаем основную директорию для Storybook
-          mkdir -p .storybook
-
-          # Создаем main.js
-          cat > .storybook/main.js << 'EOF'
-          module.exports = {
-            stories: ["../src/**/*.stories.@(js|jsx|ts|tsx|mdx)"],
-            addons: ["@storybook/addon-essentials"],
-            framework: {
-              name: "@storybook/html-webpack5",
-              options: {}
-            },
-            docs: {
-              autodocs: true
-            }
-          };
-          EOF
-
-          # Создаем предварительный файл истории для кнопки
-          mkdir -p src/stories
-          cat > src/stories/button.stories.js << 'EOF'
-          import buttonHTML from '../components/button.html?raw';
-
-          export default {
-            title: 'Components/Button',
-            argTypes: {
-              variant: { control: 'select', options: ['primary', 'secondary'] }
-            },
-          };
-
-          export const Primary = () => {
-            return `<button class="button button-primary">Primary Button</button>`;
-          };
-
-          export const Secondary = () => {
-            return `<button class="button button-secondary">Secondary Button</button>`;
-          };
-
-          export const ButtonsFromHTML = () => {
-            return buttonHTML;
-          };
-          EOF
+          cat > storybook-static/index.html << 'EOFHTML'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Tailwind Kit Demo</title>
+            <link rel="stylesheet" href="styles.css">
+          </head>
+          <body style="padding: 20px; font-family: system-ui, sans-serif;">
+            <h1>Tailwind Kit Components</h1>
+            <div style="margin-top: 20px;">
+              <h2>Buttons</h2>
+              <div style="display: flex; gap: 10px;">
+                <button class="button button-primary">Primary Button</button>
+                <button class="button button-secondary">Secondary Button</button>
+              </div>
+            </div>
+          </body>
+          </html>
+          EOFHTML
 
       # Пробуем собрать Storybook
       - name: Try to build Storybook
+        continue-on-error: true
         run: |
           # Добавляем необходимые зависимости для Storybook HTML
           pnpm add -D @storybook/html @storybook/html-webpack5
-
           # Пробуем собрать Storybook
-          pnpm build-storybook || echo "Storybook build failed, deploying simple demo instead"
-
-      # Создаем простую демо-страницу, если Storybook не собрался
-      - name: Create demo pages
-        run: |
-          if [ ! -d "storybook-static" ]; then
-            mkdir -p storybook-static
-
-            # Копируем стили
-            cp dist/styles.css storybook-static/
-
-            # Создаем главную страницу
-            cat > storybook-static/index.html << 'EOF'
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Tailwind Kit Demo</title>
-              <link rel="stylesheet" href="styles.css">
-            </head>
-            <body style="padding: 20px; font-family: system-ui, sans-serif;">
-              <h1>Tailwind Kit Components</h1>
-              <div style="margin-top: 20px;">
-                <h2>Buttons</h2>
-                <div style="display: flex; gap: 10px;">
-                  <button class="button button-primary">Primary Button</button>
-                  <button class="button button-secondary">Secondary Button</button>
-                </div>
-              </div>
-            </body>
-            </html>
-            EOF
-          fi
+          pnpm build-storybook
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
