@@ -1,0 +1,42 @@
+# Node modules
+node_modules/
+
+# Yarn or npm lock files (if using yarn)
+yarn.lock
+package-lock.json
+
+# Build directories
+/dist/
+/build/
+
+# Storybook build
+/storybook-static/
+
+# Logs
+*.log
+
+# Debug files
+.vscode/
+.idea/
+
+# Temporary files created by the IDEs and editors
+.DS_Store
+*.swp
+*.swo
+
+# TypeScript
+*.tsbuildinfo
+
+# Lerna or Turborepo cache
+/.turbo/
+/lerna-debug.log
+
+# Coverage reports
+/coverage/
+
+# Jest snapshots
+*.snap
+
+# OS-specific files
+Thumbs.db
+.DS_Store
