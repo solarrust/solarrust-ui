@@ -1,0 +1,5 @@
+import{R as m}from"./index-DmM0KDA7.js";var e={primary:{DEFAULT:"oklch(65% 0.25 30deg)"},secondary:{DEFAULT:"oklch(75% 0.22 210deg)"},accent:{DEFAULT:"oklch(75% 0.3 320deg)"}};const n=({children:c,variant:s="primary",...i})=>{const l=s==="primary"?e.primary.DEFAULT:e.accent?e.accent.DEFAULT:e.secondary.DEFAULT;return m.createElement("button",{style:{backgroundColor:l},...i},c)};n.__docgenInfo={description:"",methods:[],displayName:"Button",props:{children:{required:!0,tsType:{name:"ReactNode"},description:""},variant:{required:!1,tsType:{name:"union",raw:'"primary" | "secondary" | "accent"',elements:[{name:"literal",value:'"primary"'},{name:"literal",value:'"secondary"'},{name:"literal",value:'"accent"'}]},description:"",defaultValue:{value:'"primary"',computed:!1}}}};const p={title:"Components/Button",component:n,tags:["autodocs"]},r={args:{children:"Click me"}};var a,t,o;r.parameters={...r.parameters,docs:{...(a=r.parameters)==null?void 0:a.docs,source:{originalSource:`{
+  args: {
+    children: "Click me"
+  }
+}`,...(o=(t=r.parameters)==null?void 0:t.docs)==null?void 0:o.source}}};const u=["Primary"];export{r as Primary,u as __namedExportsOrder,p as default};
