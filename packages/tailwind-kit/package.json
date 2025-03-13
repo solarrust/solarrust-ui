@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "scripts": {
     "build": "tailwindcss -i ./src/styles.css -o ./dist/styles.css --minify",
-    "storybook": "storybook dev -p 6007"
+    "storybook": "storybook dev -p 6007",
+    "build-storybook": "build-storybook -o storybook-static",
+    "deploy-storybook": "gh-pages -d storybook-static"
   },
   "keywords": [],
   "author": "",
