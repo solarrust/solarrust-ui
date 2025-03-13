@@ -1,13 +1,23 @@
 name: Deploy React Kit Storybook
 
+concurrency:
+  group: ui-kit-deployment
+  cancel-in-progress: false
+
 on:
   push:
     branches:
       - main
+    paths:
+      - "packages/react-kit/**"
+      - ".github/workflows/deploy-react-kit.yml"
 
 jobs:
-  deploy:
+  deploy-react:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/react-kit
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -17,13 +27,27 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies in root
+        run: pnpm install
+        working-directory: .
+
+      - name: Install dependencies in package
+        run: pnpm install
+
+      - name: Install Storybook CLI globally
+        run: pnpm install -g storybook
 
       - name: Build Storybook
-        run: npm run build-storybook
+        run: pnpm run build-storybook
 
       - name: Deploy Storybook to GitHub Pages
-        run: npm run deploy-storybook
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GH_TOKEN }}
+          publish_dir: ./packages/react-kit/storybook-static
+          destination_dir: react-kit

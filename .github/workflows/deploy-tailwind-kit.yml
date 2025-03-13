@@ -1,13 +1,31 @@
 name: Deploy Tailwind Kit Storybook
 
+# Добавляем group concurrency для предотвращения одновременного запуска
+concurrency:
+  group: ui-kit-deployment
+  cancel-in-progress: false
+
 on:
   push:
     branches:
       - main
+    paths:
+      - "packages/tailwind-kit/**"
+      - ".github/workflows/deploy-tailwind-kit.yml"
+
+  workflow_run:
+    workflows: ["Deploy React Kit Storybook"]
+    types:
+      - completed
 
 jobs:
   deploy:
+    # Запускать только если предыдущий workflow успешно завершился или был вызван напрямую
+    if: ${{ github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/tailwind-kit
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -17,13 +35,27 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies in root
+        run: pnpm install
+        working-directory: .
+
+      - name: Install dependencies in package
+        run: pnpm install
+
+      - name: Install Storybook CLI globally
+        run: npm install -g storybook
 
       - name: Build Storybook
-        run: npm run build-storybook
+        run: pnpm run build-storybook
 
       - name: Deploy Storybook to GitHub Pages
-        run: npm run deploy-storybook
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GH_TOKEN }}
+          publish_dir: ./packages/tailwind-kit/storybook-static
+          destination_dir: tailwind-kit
