@@ -1,6 +1,5 @@
 name: Deploy Tailwind Kit Storybook
 
-# Добавляем group concurrency для предотвращения одновременного запуска
 concurrency:
   group: ui-kit-deployment
   cancel-in-progress: false
@@ -11,6 +10,7 @@ on:
       - main
     paths:
       - "packages/tailwind-kit/**"
+      - "packages/tokens/**"
       - ".github/workflows/deploy-tailwind-kit.yml"
 
   workflow_run:
@@ -20,7 +20,6 @@ on:
 
 jobs:
   deploy:
-    # Запускать только если предыдущий workflow успешно завершился или был вызван напрямую
     if: ${{ github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     defaults:
@@ -47,8 +46,15 @@ jobs:
       - name: Install dependencies in package
         run: pnpm install
 
+      - name: Build tokens package
+        run: pnpm build
+        working-directory: ../tokens
+
+      - name: Build Tailwind Kit
+        run: pnpm build
+
       - name: Install Storybook CLI globally
-        run: npm install -g storybook
+        run: pnpm install -g storybook
 
       - name: Build Storybook
         run: pnpm run build-storybook

@@ -10,6 +10,7 @@ on:
       - main
     paths:
       - "packages/react-kit/**"
+      - "packages/tokens/**"
       - ".github/workflows/deploy-react-kit.yml"
 
 jobs:
@@ -38,6 +39,13 @@ jobs:
 
       - name: Install dependencies in package
         run: pnpm install
+
+      - name: Build tokens package
+        run: pnpm build
+        working-directory: ../tokens
+
+      - name: Build React Kit
+        run: pnpm build
 
       - name: Install Storybook CLI globally
         run: pnpm install -g storybook
