@@ -41,8 +41,7 @@ jobs:
         run: pnpm install
 
       - name: Build tokens package
-        run: pnpm build
-        working-directory: ../tokens
+        run: cd ../../packages/tokens && pnpm build
 
       - name: Build React Kit
         run: pnpm build
