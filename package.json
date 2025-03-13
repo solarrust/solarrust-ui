@@ -9,6 +9,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "pnpm --filter \"*\" build",
+    "build:current": "pnpm run build --filter $(basename $(pwd))",
+    "build:react": "pnpm --filter @solarrust-ui/react-kit build",
+    "build:tailwind": "pnpm --filter @solarrust-ui/tailwind-kit build",
+    "build:tokens": "pnpm --filter @solarrust-ui/tokens build",
     "build-storybook": "storybook build",
     "storybook": "pnpm run storybook",
     "storybook:react": "cd packages/react-kit && pnpm storybook",

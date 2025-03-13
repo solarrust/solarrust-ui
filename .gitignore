@@ -4,10 +4,11 @@ node_modules/
 # Yarn or npm lock files (if using yarn)
 yarn.lock
 package-lock.json
+pnpm-lock.yaml
 
 # Build directories
-/dist/
-/build/
+**/dist/
+**/build/
 
 # Storybook build
 storybook-static/

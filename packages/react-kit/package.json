@@ -29,6 +29,7 @@
     "typescript": "^5.8.2"
   },
   "dependencies": {
+    "@solarrust-ui/tokens": "workspace:*",
     "@types/react-dom": "^19.0.4"
   }
 }
